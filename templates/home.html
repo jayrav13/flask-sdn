@@ -1,0 +1,11 @@
+{% include 'standard/header.html' %}
+
+{% if user != False %}
+<h1>Welcome to SDN, {{ user.username }}!</h1>
+{% else %}
+<h1>Welcome to SDN!</h1>
+{% endif %}
+
+<h3>Our website is currently under construction, visit back soon!</h3>
+
+{% include 'standard/footer.html' %}

@@ -68,7 +68,10 @@ assets.register('css_all', css)
 @app.route('/')
 def home():
 	user = return_current_user()
-	return render_template('home.html', title="Welcome", user=user)
+	if user == False:
+		return "No one is logged in."
+	else:
+		return user.email
 
 ### Login route. Will display login form, or handle the login process for the user.
 ### Once logged in, user id is stored in a session variable.
@@ -105,41 +108,24 @@ def register():
 		pw = hashlib.md5(request.form['password']).hexdigest()
 		em = request.form['email']
 	
-		if not Users.query.filter_by(email=em).filter_by(username=un).first():
-			if validate_credentials(un) == True and validate_credentials(request.form['password']) == True: 
-				user = Users(un, pw, em)
-				db.session.add(user)
-				db.session.commit()
-		
-				session['logged_in_id'] = user.id
-				return redirect('/')	
-			
-			else:
-				return render_template('register.html', title="Register", error_message="Username and Password must be alphanumeric and between 8 and 16 characters each!")
+		if not Users.query.filter_by(email=em).filter_by(username=un).first(): #  and validate_credentials(un) and validate_credentials(pw): 
+			user = Users(un, pw, em)
+			db.session.add(user)
+			db.session.commit()
+	
+			session['logged_in_id'] = user.id
+			return redirect('/')	
 
 		else:
-			return render_template('register.html', title="Register", error_message="This username or email already exists!")
-	else:
-		return render_template('register.html', title='Register', error_message="Invalid request method!")
+			print "User already exists\n"
+			return render_template('register.html', title="Register", error_message="This username already exists!")
 
 ### Projects route. Will list out all projects currently offered.
 
-@app.route('/projects', methods=['GET','POST'])
+@app.route('/projects', methods=['GET'])
 @login_required
 def projects():
-	user = return_current_user()
-	projects = Projects.query.all()
-
-	if request.method == 'POST':
-		if request.form['title'] and request.form['description']:
-			project = Projects(request.form['title'], request.form['description'])
-			user.projects.append(project)
-			db.session.commit()
-	
-		return redirect('/projects')
-
-	elif request.method == 'GET':
-		return render_template('projects.html', title="Projects", user=user, projects=projects)
+	return "Under construction!"
 
 ### About route. Will take user to an "About Us" page.
 
@@ -150,24 +136,16 @@ def about():
 ### Profile route. Will generate a profile of the current user.
 
 @app.route('/profile', methods=['GET'])
-@login_required
 def profile():
 	return "My profile!"
-
-@app.route('/users', methods=['GET'])
-@login_required
-def users():
-	return "Users"
 
 ### Logout route. Will logout the user. More technically, will remove ID from session/cookies.
 
 @app.route('/logout', methods=['GET'])
 def logout():
-	if 'logged_in_id' in session.keys():	
-		session.clear()
-	
+	session.pop('logged_in_id', None)
 	return redirect('/')
-	
+
 ###
 # Add headers to both force latest IE rendering engine or Google Frame,
 # and also to cache the rendered page for 10 minutes.

@@ -1,3 +1,4 @@
+<!--comment-->
 <!DOCTYPE html>
 <html>
 
@@ -6,18 +7,18 @@
 		<meta name="description" content="A networking site for junior devs!">
 		<meta name="keywords" content="SDNetworking, networking, developers, junior">
 		<meta name="author" content="Jay Ravaliya">
-		<title>{{ title }} | SDNetwork</title>
+		<title>{{ title + ' | ' }}SDN</title>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>	
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 		{% assets "css_all" %}
-			<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+		<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
 		{% endassets %}		
 
 	</head>
 	<body>
 		<!--navbar-->
-		<nav class="navbar navbar-default">
+		<nav class="navbar navbar-inverse navbar-static-top">
 			<div class="container-fluid">
 				<!-- Brand and toggle get grouped for better mobile display -->
 				<div class="navbar-header">
@@ -33,11 +34,19 @@
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li><a href="/projects">Project</a></li>
 						<li><a href="/about">About</a></li>
+						<li><a href="/projects">Projects</a></li>
+						<li><a href="/users">Users</a></li>					
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
-						<li><a href="#">Link</a></li>
+						{% if user is defined and user != False %}						
+						<li><a href="/profile">Edit Profile</a></li>
+						<p class="navbar-text">Signed in as {{ user.username }}</p>
+						<li><a href="/logout">Log Out</a></li>	
+						{% else %}
+						<li><a href="/login">Log In</a></li>
+						<li><a href="/register">Register</a></li>
+						{% endif %}
 					</ul>
 				</div><!-- /.navbar-collapse -->
 			</div><!-- /.container-fluid -->

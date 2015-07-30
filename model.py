@@ -7,16 +7,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/sdn'
 db = SQLAlchemy(app)
 
-class Test(db.Model):
-	id = db.Column(db.Integer, primary_key=True)
-	input = db.Column(db.String)
-	
-	def __init__(self, input):
-		self.input = input
-
-	def __repr__(self):
-		return '<Test %r>' % self.input
-
 ###
 # Users Table
 ###
@@ -53,7 +43,23 @@ class Projects(db.Model):
 	description = db.Column(db.String)
 	user_id = db.Column(db.Integer, ForeignKey('users.id'))
 
+	# Backref for Tags table
+	tags = relationship("Tags", backref="projects")
+
 	# Set values for Projects
 	def __init__(self, title, description):
 		self.title = title
 		self.description = description
+
+class Tags(db.Model):
+
+	__tablename__ = 'tags'
+
+	# Columns
+	id = db.Column(db.Integer, primary_key=True)
+	tag = db.Column(db.String)
+	project_id = db.Column(db.Integer, ForeignKey('projects.id'))
+
+	# Set values for Tags
+	def __init__(self, tag):
+		self.tag = tag

@@ -1,1 +1,18 @@
+h1.page_title
+{
+	text-align:center;
+}
+
+div.object_container
+{
+	margin:auto;
+	text-align:center;
+}
+
+div.object_center
+{
+	text-align:auto;
+	width:auto;
+	margin:auto;
+}
 

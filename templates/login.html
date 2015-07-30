@@ -1,21 +1,34 @@
 {% include 'standard/header.html' %}
 
-<!-- template thanks to https://gist.github.com/bMinaise / https://gist.github.com/bMinaise/7329874 -->
+	{% if title is defined %}
+	<div class="object_container">
+		<div class="object_center">
+			<h1>{{ title }}</h1>
+		</div>
+	</div>
+	{% endif %}
 
-<div class="login_center">
 	<div class="col-md-4 col-md-offset-4">
+		{% if error_message is defined %}
+		<div class="alert alert-danger" role="alert">
+		{{ error_message }}	
+		</div>
+		{% endif %}
 		<form method="POST" action="/login">
 			<div class="form-group">
-				<label for="exampleInputEmail1">Email address</label>
-				<input type="text" name="username" class="form-control" id="exampleInputEmail1" placeholder="Email">
+				<label for="exampleInputEmail1">Username</label>
+				<input type="text" name="username" class="form-control" id="exampleInputEmail1" placeholder="Username">
 			</div>
 			<div class="form-group">
 				<label for="exampleInputPassword1">Password</label>
 				<input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
 			</div>
-			<button type="submit" class="btn btn-default">Submit</button>
+			<div class="object_container">
+				<div class="object_center">
+					<button type="submit" class="btn btn-default">Submit</button>
+				</div>
+			</div>
 		</form>
 	</div>
-</div>
 
 {% include 'standard/footer.html' %}
