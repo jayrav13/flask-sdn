@@ -14,7 +14,7 @@ from flask.ext.assets import Environment, Bundle
 
 # add app and config
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
+app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
 
 ###
@@ -164,8 +164,8 @@ def users():
 @app.route('/logout', methods=['GET'])
 def logout():
 	if 'logged_in_id' in session.keys():	
-		session.clear()
-	
+		session.pop('logged_in_id')
+
 	return redirect('/')
 	
 ###
