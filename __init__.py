@@ -163,10 +163,8 @@ def users():
 
 @app.route('/logout', methods=['GET'])
 def logout():
-	if 'logged_in_id' in session.keys():	
-		session.pop('logged_in_id')
-
-	return redirect('/')
+	session.pop('logged_in_id', None)
+	return redirect(url_for('home'))
 	
 ###
 # Add headers to both force latest IE rendering engine or Google Frame,
@@ -176,7 +174,7 @@ def logout():
 @app.after_request
 def add_header(response):
 	response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-	response.headers['Cache-Control'] = 'public, max-age=600'
+	response.headers['Cache-Control'] = 'public, max-age=0'
 	return response
 
 ###
@@ -193,4 +191,4 @@ def page_not_found(error):
 ###
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	app.run(debug=True, host="45.33.69.6")

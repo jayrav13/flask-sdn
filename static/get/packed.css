@@ -16,3 +16,27 @@ div.object_center
 	margin:auto;
 }
 
+span.project-actions
+{
+	padding-left:20px;
+	padding-right:20px;
+	text-align:center;
+}
+
+pre.project-details
+{
+	white-space: pre-wrap;       /* CSS 3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+	word-break:keep-all;
+
+	text-align:left;
+}
+
+div.project-actions
+{
+	margin-top:auto;
+	margin-bottom:auto;
+}

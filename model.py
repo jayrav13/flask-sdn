@@ -4,7 +4,7 @@ from sqlalchemy import Integer, ForeignKey, String, Column
 from sqlalchemy.orm import relationship
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/sdn'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:tPWrd5@localhost/sdn'
 db = SQLAlchemy(app)
 
 ###
