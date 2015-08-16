@@ -128,7 +128,7 @@ def register():
 @login_required
 def projects():
 	user = return_current_user()
-	projects = Projects.query.all()
+	projects = Projects.query.order_by(Projects.timestamp.desc()).all()
 
 	if request.method == 'POST':
 		if request.form['title'] and request.form['description']:
@@ -141,6 +141,31 @@ def projects():
 	elif request.method == 'GET':
 		return render_template('projects.html', title="Projects", user=user, projects=projects)
 
+@app.route('/projects/details', methods=['GET','POST'])
+@login_required
+def projects_details():
+	if 'id' in request.args:
+		project = Projects.query.filter_by(id=request.args['id']).first()
+		if not project:
+			return redirect('/projects')
+		else:
+			user = return_current_user()
+			return render_template('details.html', title="Details", user=user, project=project)			
+	
+	else:
+		return redirect('/projects')
+
+@app.route('/projects/delete', methods=['GET'])
+def projects_delete():
+	if 'id' in request.args:
+		project = Projects.query.filter_by(id=request.args['id']).first()
+		user = return_current_user()
+		if project and project.user_id == user.id:
+			db.session.delete(project)
+			db.session.commit()
+		
+	return redirect('/projects')
+
 ### About route. Will take user to an "About Us" page.
 
 @app.route('/about', methods=['GET'])
@@ -152,7 +177,17 @@ def about():
 @app.route('/profile', methods=['GET'])
 @login_required
 def profile():
-	return "My profile!"
+	if "id" in request.args:
+		user = Users.query.filter_by(id=request.args['id']).first()		
+
+		if user:
+			return render_template('userprofile.html', title=user.username, user=user)
+		else:
+			return redirect("/")
+	else:
+		user = return_current_user()
+		return render_template('userprofile.html', title=user.username, user=user)
+		
 
 @app.route('/users', methods=['GET'])
 @login_required
