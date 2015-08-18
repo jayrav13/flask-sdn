@@ -64,8 +64,8 @@
 			{% for project in projects %}
 			<tr>
 				<td>
-					<h4>{{ project.title }}</h4>
-					<p style="margin:auto"><pre class="project-details">{{ project.description }}</pre></p>
+					<h4><a href="/projects/details?id={{project.id}}">{{ project.title }}</a></h4>
+					<p style="margin:auto"><div class="project-details">{{ project.description }}</div></p>
 					<p>Posted by: <a href="/profile?id={{ project.users.id }}">{{ project.users.username }}</a> on {{ project.get_date() }} at {{ project.get_time() }} </p>
 					<table><tr><td><form action="/projects/details" method="GET">
 						<button type="submit" name="id" value="{{ project.id }}" class="btn btn-default">Details</button>

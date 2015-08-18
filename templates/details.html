@@ -1,3 +1,20 @@
 {% include 'standard/header.html' %}
 
+<h1>Current User: {{ user.username }}</h1>
+
+{% if project is defined %}
+<h2>Project: {{ project.title }}</h2>
+
+	{% for comment in project.project_comments %}
+	<h4>{{ comment.comment }}</h4><br />
+	{% endfor %}
+
+{% endif %}
+
+
+<form method="post" action="/projects/details?id={{project.id}}">
+	<input name="comment-content" type="text" />
+	<button type="submit">Submit</button>
+</form>
+
 {% include 'standard/footer.html' %}

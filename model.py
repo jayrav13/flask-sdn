@@ -3,10 +3,11 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, ForeignKey, String, Column
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy
+from secret import DB_KEY
 import time
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:tPWrd5@localhost/sdn'
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_KEY
 db = SQLAlchemy(app)
 
 ###

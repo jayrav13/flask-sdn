@@ -23,7 +23,7 @@ span.project-actions
 	text-align:center;
 }
 
-pre.project-details
+div.project-details
 {
 	white-space: pre-wrap;       /* CSS 3 */
 	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -39,4 +39,10 @@ div.project-actions
 {
 	margin-top:auto;
 	margin-bottom:auto;
+}
+
+table.login-page-register-forgot
+{
+	table-layout:fixed;
+	text-align:center;
 }

@@ -11,11 +11,26 @@ from model import Users, Projects, ProjectComments, db
 import hashlib
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
+from flask.ext.mail import Mail, Message
+from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 
 # add app and config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
+
+app.config.update(dict(
+    DEBUG = True,
+    MAIL_SERVER = 'smtp.gmail.com',
+    MAIL_PORT = 465,
+    MAIL_USE_TLS = False,
+    MAIL_USE_SSL = True,
+    MAIL_USERNAME = GMAIL_USERNAME,
+    MAIL_PASSWORD = GMAIL_PASSWORD,
+    MAIL_DEFAULT_SENDER = 'SDN <' + GMAIL_USERNAME + '>'
+))
+
+mail = Mail(app)
 
 ###
 # Functions
@@ -33,7 +48,7 @@ def login_required(f):
 	return decorated_function
 
 ### return_current_user
-### Returns current user as a Users object
+### Returns current user as a Users object if the user is logged in.
 def return_current_user():
 	if 'logged_in_id' not in session.keys():
 		return False
@@ -76,6 +91,7 @@ def home():
 @app.route('/login', methods=['GET','POST'])
 def login():
 	if request.method == 'GET':
+		# print request
 		return render_template('login.html', title="Log In")
 
 	elif request.method == 'POST':
@@ -148,22 +164,28 @@ def projects():
 
 		return render_template('projects.html', title="Projects", user=user, projects=projects)
 
+### Projects Details route. Will load details about a project, including comments.
+
 @app.route('/projects/details', methods=['GET','POST'])
+@login_required
 def projects_details():
 	if 'id' in request.args:
 		project = Projects.query.filter_by(id=request.args['id']).first()
-		if not project:
-			return redirect('/projects')
+		if project:
+			user = return_current_user()		
+			if request.method == "POST" and request.form['comment-content']:
+				comment = ProjectComments(user, project, request.form['comment-content'])
+				db.session.add(comment)
+				db.session.commit()
+			
+			return render_template('details.html', title=project.title, user=user, project=project)
 		else:
-			user = return_current_user()
-			comment = ProjectComments(user, project, "test-comment")
-			db.session.commit()
-			return render_template('details.html', title="Details", user=user, project=project)			
-	
+			return redirect('/projects')	
 	else:
 		return redirect('/projects')
 
 @app.route('/projects/delete', methods=['GET'])
+@login_required
 def projects_delete():
 	if 'id' in request.args:
 		project = Projects.query.filter_by(id=request.args['id']).first()
@@ -208,7 +230,25 @@ def users():
 def logout():
 	session.pop('logged_in_id', None)
 	return redirect(url_for('home'))
-	
+
+### Send Mail:
+@app.route('/mail', methods=['GET', 'POST'])
+def send_mail():
+	if request.method == 'GET':
+		return render_template('forgot-password.html', title="Forgot Password")
+	else:
+		if not request.form['forgot-email']:
+			return redirect('/mail')
+		else:
+			user = Users.query.filter_by(email=request.form['forgot-email']).first()
+			if not user:
+				return render_template('forgot-password.html',title="Forgot Password",message_content = "Email not found!", message_type="danger")
+			else:
+				msg = Message("Hello", recipients=[user.email])
+				msg.html="<h1>Hello!</h1><br /><h4>Here is my test.</h4>"
+				mail.send(msg)
+				return render_template('forgot-password.html', title="Forgot Password", message_content="Success!", message_type="success")
+
 ###
 # Add headers to both force latest IE rendering engine or Google Frame,
 # and also to cache the rendered page for 10 minutes.
