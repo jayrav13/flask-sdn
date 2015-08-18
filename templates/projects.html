@@ -48,12 +48,15 @@
 	<div class="col-md-8 col-md-offset-2">
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3">
-				<div class="input-group">
-					<input type="search" class="form-control" placeholder="Search Projects">
-					<span class="input-group-btn">
-						<button class="btn btn-default" type="button">Go!</button>
-					</span>
-				</div>	
+				<form action="/projects" method="get">		
+					<div class="input-group">		
+						<input type="search" class="form-control" name="query" placeholder="Search Projects">
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="submit">Go!</button>	
+							<button class="btn btn-danger" name="clear-page" type="submit">Clear</button>
+						</span>
+					</div>
+				</form>
 			</div>
 		</div>
 		<hr />

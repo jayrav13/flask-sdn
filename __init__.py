@@ -7,7 +7,7 @@ By Jay Ravaliya
 # establish all imports
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
-from model import Users, Projects, db
+from model import Users, Projects, ProjectComments, db
 import hashlib
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
@@ -128,7 +128,6 @@ def register():
 @login_required
 def projects():
 	user = return_current_user()
-	projects = Projects.query.order_by(Projects.timestamp.desc()).all()
 
 	if request.method == 'POST':
 		if request.form['title'] and request.form['description']:
@@ -139,10 +138,17 @@ def projects():
 		return redirect('/projects')
 
 	elif request.method == 'GET':
+		if 'clear-page' in request.args:
+			return redirect('/projects')
+		elif 'query' in request.args:
+			projects = Projects.query.filter(Projects.title.like('%'+request.args['query']+'%')).order_by(Projects.timestamp.desc()).all()
+			
+		else:
+			projects = Projects.query.order_by(Projects.timestamp.desc()).all()			
+
 		return render_template('projects.html', title="Projects", user=user, projects=projects)
 
 @app.route('/projects/details', methods=['GET','POST'])
-@login_required
 def projects_details():
 	if 'id' in request.args:
 		project = Projects.query.filter_by(id=request.args['id']).first()
@@ -150,6 +156,8 @@ def projects_details():
 			return redirect('/projects')
 		else:
 			user = return_current_user()
+			comment = ProjectComments(user, project, "test-comment")
+			db.session.commit()
 			return render_template('details.html', title="Details", user=user, project=project)			
 	
 	else:
