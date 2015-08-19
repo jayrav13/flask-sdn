@@ -59,8 +59,9 @@ class Users(db.Model):
 		
 	
 	def send_forgot_password_email(self, root):
+		self.set_forgot_token()
 		msg = Message("Hello", sender=GMAIL_USERNAME, recipients=[self.email])
-		msg.html = "Hey " + self.username + ",<br />Visit <a href=\"" + root + "/password?token=" + self.forgot_token + "\" target=\"_BLANK\">this link</a> to reset your password.<br />Thanks,<br />Jay"
+		msg.html = "Hey " + self.username + ",<br />Visit <a href=\"" + root + "password?token=" + self.forgot_token + "\" target=\"_BLANK\">this link</a> to reset your password.<br />Thanks,<br />Jay"
 		mail.send(msg)
 
 ###

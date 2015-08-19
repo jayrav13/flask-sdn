@@ -216,7 +216,7 @@ def logout():
 	session.pop('logged_in_id', None)
 	return redirect(url_for('home'))
 
-### Send Mail:
+### Manage Password:
 @app.route('/password', methods=['GET', 'POST'])
 def manage_password():
 	if request.method == 'GET':
@@ -225,20 +225,32 @@ def manage_password():
 		else:
 			user = Users.query.filter_by(forgot_token=request.args['token']).first()
 			if user:
-				return render_template('new-password.html', title="Enter New Password", user=user, message_type="success", message_content="Hey " + user.username + ", enter a new password.")
+				return render_template('new-password.html', title="Enter New Password", user=user, message_type="success", message_content="Hey " + user.username + ", enter a new password.", token=request.args['token'])
 			else:
 				return render_template('login.html', title="Log In", error_message="Invalid Token!")
 
 	else:
-		if not request.form['forgot-email']:
-			return redirect('/password')
-		else:
-			user = Users.query.filter_by(email=request.form['forgot-email']).first()
+		if 'forgot-password' in request.form:			
+			print "Made it!"
+			user = Users.query.filter_by(email=request.form['forgot-password']).first()
 			if not user:
-				return render_template('forgot-password.html',title="Forgot Password",message_content = "Email not found!", message_type="danger")
+				return render_template('forgot-password.html',title="Forgot Password",message_content = "Sorry, didn't find your email.", message_type="danger")
 			else:
 				user.send_forgot_password_email(request.url_root)
-				return render_template('forgot-password.html', title="Forgot Password", message_content="Success!", message_type="success")
+				return render_template('forgot-password.html', title="Forgot Password", message_content="Check your email for a link via which you can reset your password!", message_type="success")		
+		elif 'new-password' in request.form:
+			user = Users.query.filter_by(forgot_token=request.form['new-password-submit']).first()
+			if not user:
+				return redirect('login.html', title="Log In", error_message="Error with token.")
+			else:
+				user.password = request.form['new-password']
+				user.forgot_token = None
+				user.forgot_timeout = None
+				db.session.commit()
+				return redirect('/login')		
+		
+		else:
+			return redirect('/password')
 
 ###
 # Add headers to both force latest IE rendering engine or Google Frame,
