@@ -7,30 +7,16 @@ By Jay Ravaliya
 # establish all imports
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
-from model import Users, Projects, ProjectComments, db
+from model import Users, Projects, ProjectComments, db 
 import hashlib
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
 from flask.ext.mail import Mail, Message
-from secret import GMAIL_USERNAME, GMAIL_PASSWORD
 
 # add app and config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
-
-app.config.update(dict(
-    DEBUG = True,
-    MAIL_SERVER = 'smtp.gmail.com',
-    MAIL_PORT = 465,
-    MAIL_USE_TLS = False,
-    MAIL_USE_SSL = True,
-    MAIL_USERNAME = GMAIL_USERNAME,
-    MAIL_PASSWORD = GMAIL_PASSWORD,
-    MAIL_DEFAULT_SENDER = 'SDN <' + GMAIL_USERNAME + '>'
-))
-
-mail = Mail(app)
 
 ###
 # Functions
@@ -65,7 +51,6 @@ def validate_credentials(input):
 			return False
 	else:
 		return False
-
 
 ###
 # Assets
@@ -232,21 +217,27 @@ def logout():
 	return redirect(url_for('home'))
 
 ### Send Mail:
-@app.route('/mail', methods=['GET', 'POST'])
-def send_mail():
+@app.route('/password', methods=['GET', 'POST'])
+def manage_password():
 	if request.method == 'GET':
-		return render_template('forgot-password.html', title="Forgot Password")
+		if 'token' not in request.args:
+			return render_template('forgot-password.html', title="Forgot Password")
+		else:
+			user = Users.query.filter_by(forgot_token=request.args['token']).first()
+			if user:
+				return render_template('new-password.html', title="Enter New Password", user=user, message_type="success", message_content="Hey " + user.username + ", enter a new password.")
+			else:
+				return render_template('login.html', title="Log In", error_message="Invalid Token!")
+
 	else:
 		if not request.form['forgot-email']:
-			return redirect('/mail')
+			return redirect('/password')
 		else:
 			user = Users.query.filter_by(email=request.form['forgot-email']).first()
 			if not user:
 				return render_template('forgot-password.html',title="Forgot Password",message_content = "Email not found!", message_type="danger")
 			else:
-				msg = Message("Hello", recipients=[user.email])
-				msg.html="<h1>Hello!</h1><br /><h4>Here is my test.</h4>"
-				mail.send(msg)
+				user.send_forgot_password_email(request.url_root)
 				return render_template('forgot-password.html', title="Forgot Password", message_content="Success!", message_type="success")
 
 ###
