@@ -4,9 +4,13 @@ html
 
 body
 {
-	padding-top:70px;
+	padding:60px 0px 60px 0px;
 }
 
+.comment_timestamp
+{
+	font-size:10px;
+}
 .page_title
 {
 	text-align:center;
@@ -60,3 +64,5 @@ table.login-page-register-forgot
 	table-layout:fixed;
 	text-align:center;
 }
+
+

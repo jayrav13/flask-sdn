@@ -7,7 +7,7 @@
 		<meta name="description" content="A networking site for junior devs!">
 		<meta name="keywords" content="SDNetworking, networking, developers, junior">
 		<meta name="author" content="Jay Ravaliya">
-		<meta name="viewport" content="width=device-width," intitial-scale="1" maximum-scale="1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>{{ title + ' | ' }}SDN</title>
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>	
 		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -37,12 +37,11 @@
 					<ul class="nav navbar-nav">
 						<li class="{{ "active" if title == "About" }}"><a href="/about">About</a></li>
 						<li class="{{ "active" if title == "Projects"  }}"><a href="/projects">Projects</a></li>
-						<li class="{{ "active" if title == "Users" }}"><a href="/users">Users</a></li>					
+						<!--<li class="{{ "active" if title == "Users" }}"><a href="/users">Users</a></li>-->					
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						{% if user is defined and user != False %}						
-						<li><a href="/profile">Edit Profile</a></li>
-						<p class="navbar-text">Signed in as {{ user.username }}</p>
+						<li class="{{ "active" if profile_user is defined }}"><a href="/profile">Edit Profile</a></li>
 						<li><a href="/logout">Log Out</a></li>	
 						{% else %}
 						<li><a href="/login">Log In</a></li>
@@ -51,4 +50,4 @@
 					</ul>
 				</div><!-- /.navbar-collapse -->
 			</div><!-- /.container-fluid -->
-		</nav>	
+		</nav>

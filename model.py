@@ -42,7 +42,7 @@ class Users(db.Model):
 	forgot_timeout = db.Column(db.String)
 
 	# Backrefs
-	projects = relationship("Projects",backref="users")
+	projects = relationship("Projects", backref="users", single_parent=True, cascade="all, delete-orphan", primaryjoin=("Users.id==Projects.user_id"))
 	project_comments = association_proxy('project_comments','projects')
 
 	# Initialize new user by setting values and adding them right away
@@ -78,7 +78,7 @@ class Projects(db.Model):
 	user_id = db.Column(db.Integer, ForeignKey('users.id'))
 	timestamp = db.Column(db.String)
 	
-	project_comments = relationship("ProjectComments",backref="projects", primaryjoin=("Projects.id==ProjectComments.project_id"))
+	project_comments = relationship("ProjectComments",backref="projects", single_parent=True, cascade="all, delete-orphan",  primaryjoin=("Projects.id==ProjectComments.project_id"))
 
 	# Set values for Projects
 	def __init__(self, title, description):
@@ -115,7 +115,7 @@ class ProjectComments(db.Model):
 	comment = db.Column(db.String)
 	timestamp = db.Column(db.String)
 
-	user = relationship("Users", backref=backref("project_comments",cascade="all, delete-orphan"))
+	user = relationship("Users", backref="project_comments", single_parent=True, cascade="all, delete-orphan", primaryjoin=("Users.id==ProjectComments.user_id"))
 	project = relationship("Projects")	
 
 	def __init__(self, user, project, comment):

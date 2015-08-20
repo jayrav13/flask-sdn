@@ -1,21 +1,24 @@
 {% include 'standard/header.html' %}
 
-<div class="col-md-4 col-md-offset-4">
-	<h1 class="page_title">{{ profile_user.username }}</h1>
-	<hr />
+<div class="container-fluid">
+	<div class="col-md-4 col-md-offset-4">
+		<h1 class="page_title">{{ profile_user.username }}</h1>
+		<hr />
 
-	<h4>Projects</h4>
-	{% for project in profile_user.projects %}
-	<a href="/projects/details?id={{project.id}}">{{ project.title }}</a><br />created at {{ project.get_date() }} at {{ project.get_time() }}
-	<br /><br />
-	{% endfor %}
+		<h4 class="page_title">Projects</h4>
+		{% for project in profile_user.projects %}
+		<a href="/projects/details?id={{project.id}}">{{ project.title }}</a><br />created at {{ project.get_date() }} at {{ project.get_time() }}
+		<br /><br />
+		{% endfor %}
 
-	<h4>Comments</h4>
-	{% for comment in profile_user.project_comments %}
-	"{{ comment.comment }}"<br />
-	<i><a href="/projects/details?id={{comment.project.id}}">{{ comment.project.title }}</a></i><br />
-	<br />
-	{% endfor %}
+		<h4 class="page_title">Comments</h4>
+		{% for comment in profile_user.project_comments %}
+		<a href="/projects/details?id={{ comment.project.id }}#{{ comment.id }}">"{{ comment.comment }}"</a><br />
+		<i><a href="/projects/details?id={{comment.project.id}}">{{ comment.project.title }}</a></i>
+		<br />
+		<br />
+		{% endfor %}
+	</div>
 </div>
 
 {% include 'standard/footer.html' %}

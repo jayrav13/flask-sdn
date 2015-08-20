@@ -65,16 +65,21 @@
 			<tr>
 				<td>
 					<h4><a href="/projects/details?id={{project.id}}">{{ project.title }}</a></h4>
-					<p style="margin:auto"><div class="project-details">{{ project.description|safe }}</div></p>
+					<div class="well well-sm">
+						<p><div class="project-details">{{ project.description|safe }}</div></p>
+					</div>
 					<p>Posted by: <a href="/profile?id={{ project.users.id }}">{{ project.users.username }}</a> on {{ project.get_date() }} at {{ project.get_time() }} </p>
-					<table><tr><td><form action="/projects/details" method="GET">
-						<button type="submit" name="id" value="{{ project.id }}" class="btn btn-default">Details</button>
-					</form></td>
+					<table>
+						<tr>
+						<td><form action="/projects/details" method="GET">
+								<button type="submit" name="id" value="{{ project.id }}" class="btn btn-default">Details</button>
+						</form></td>
 					{% if project.users.id == user.id %}
 						<td><form action="/projects/delete" method="GET">
 							<button type="submit" name="id" value="{{ project.id }}" class="btn btn-danger">Delete</button>
-						</form>
-					{% endif %}</tr></table>
+						</form></td>
+					{% endif %}</tr>
+					</table>
 				</td>
 			</tr>
 			{% endfor %}
