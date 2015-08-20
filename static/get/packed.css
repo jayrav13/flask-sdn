@@ -7,7 +7,7 @@ body
 	padding-top:70px;
 }
 
-h1.page_title
+.page_title
 {
 	text-align:center;
 }
@@ -16,6 +16,11 @@ div.object_container
 {
 	margin:auto;
 	text-align:center;
+}
+
+.justify_text
+{
+	text-align:justify;
 }
 
 div.object_center

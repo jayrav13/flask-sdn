@@ -187,8 +187,9 @@ def projects_delete():
 
 @app.route('/about', methods=['GET'])
 def about():
-	return "By Jay Ravaliya. Details under construction!"
-
+	user = return_current_user()
+	return render_template('about.html', user=user, title="About")
+	
 ### Profile route. Will generate a profile of the current user.
 
 @app.route('/profile', methods=['GET'])
