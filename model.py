@@ -61,7 +61,7 @@ class Users(db.Model):
 	def send_forgot_password_email(self, root):
 		self.set_forgot_token()
 		msg = Message("Hello", sender=GMAIL_USERNAME, recipients=[self.email])
-		msg.html = "Hey " + self.username + ",<br />Visit <a href=\"" + root + "password?token=" + self.forgot_token + "\" target=\"_BLANK\">this link</a> to reset your password.<br />Thanks,<br />Jay"
+		msg.html = "Hey " + self.username + ",<br />Visit <a href=\"" + root + "password?token=" + self.forgot_token + "\" target=\"_BLANK\">this link</a> to reset your password.<br /><br />Thanks,<br />Jay"
 		mail.send(msg)
 
 ###
@@ -82,9 +82,17 @@ class Projects(db.Model):
 
 	# Set values for Projects
 	def __init__(self, title, description):
-		self.title = title
-		self.description = description
-		self.timestamp = str(time.time())
+		updated_title = title.replace("<script","<br />").replace("text/javascript","<br />").replace("</script>","<br />")
+		updated_description = description.replace("<script","<br />").replace("text/javascript","<br />").replace("</script>","<br />")
+		
+		if len(title) == 0 or len(description) == 0 or updated_title != title or updated_description != description:
+			self.title = None
+			self.description = None
+			self.timestamp = None
+		else:
+			self.title = title
+			self.description = description
+			self.timestamp = str(time.time())
 	
 	def get_date(self):
 		return (time.strftime('%m/%d',time.localtime(int(float(self.timestamp))))).replace('0','') + (time.strftime('/%Y',time.localtime(int(float(self.timestamp)))))

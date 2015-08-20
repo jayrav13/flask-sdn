@@ -9,9 +9,9 @@
 	{% endif %}
 
 	<div class="col-md-4 col-md-offset-4">
-		{% if error_message is defined %}
-		<div class="alert alert-danger" role="alert">
-		{{ error_message }}	
+		{% if message_content and message_type %}
+		<div class="alert alert-{{ message_type  }}" role="alert">
+		{{ message_content }}	
 		</div>
 		{% endif %}
 		<form method="POST" action="/login">

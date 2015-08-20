@@ -9,6 +9,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session
 from model import Users, Projects, ProjectComments, db 
 import hashlib
+import HTMLParser
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
 from flask.ext.mail import Mail, Message
@@ -17,6 +18,8 @@ from flask.ext.mail import Mail, Message
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
+
+h = HTMLParser.HTMLParser()
 
 ###
 # Functions
@@ -44,7 +47,7 @@ def return_current_user():
 ### validate_credentials
 ### Confirms that Username and Password are valid.
 def validate_credentials(input):
-	if input.isalnum:
+	if input.isalnum():
 		if len(input) >= 8 and len(input) <= 16:
 			return True
 		else:
@@ -76,7 +79,6 @@ def home():
 @app.route('/login', methods=['GET','POST'])
 def login():
 	if request.method == 'GET':
-		# print request
 		return render_template('login.html', title="Log In")
 
 	elif request.method == 'POST':
@@ -85,14 +87,14 @@ def login():
 		
 		user = Users.query.filter_by(username = un).filter_by(password = pw).first()
 		if not user:
-			return render_template('login.html', title="Log In",  error_message = "Invalid credentials - please try again!")
+			return render_template('login.html', title="Log In",  message_content = "Invalid credentials - please try again!", message_type="danger")
 		
 		else:
 			session['logged_in_id'] = user.id
 			return redirect('/')
 
 	else:
-		return render_template('login.html', error = "Invalid request method!")
+		return render_template('login.html', message_content = "Invalid request method!", message_type="danger")
 
 ### Register route. Will allow users to register for the site.
 
@@ -116,8 +118,7 @@ def register():
 				return redirect('/')	
 			
 			else:
-				return render_template('register.html', title="Register", error_message="Username and Password must be alphanumeric and between 8 and 16 characters each!")
-
+				return render_template('register.html', title="Register", error_message="Username and Password must be alphanumeric from 8-16 characters.")
 		else:
 			return render_template('register.html', title="Register", error_message="This username or email already exists!")
 	else:
@@ -133,8 +134,9 @@ def projects():
 	if request.method == 'POST':
 		if request.form['title'] and request.form['description']:
 			project = Projects(request.form['title'], request.form['description'])
-			user.projects.append(project)
-			db.session.commit()
+			if project.title != None and project.description != None:
+				user.projects.append(project)
+				db.session.commit()
 	
 		return redirect('/projects')
 
@@ -192,16 +194,16 @@ def about():
 @app.route('/profile', methods=['GET'])
 @login_required
 def profile():
+	user = return_current_user()
 	if "id" in request.args:
-		user = Users.query.filter_by(id=request.args['id']).first()		
-
-		if user:
-			return render_template('userprofile.html', title=user.username, user=user)
+		profile_user = Users.query.filter_by(id=request.args['id']).first()		
+	
+		if profile_user:
+			return render_template('userprofile.html', title=profile_user.username, profile_user=profile_user, user=user)
 		else:
 			return redirect("/")
 	else:
-		user = return_current_user()
-		return render_template('userprofile.html', title=user.username, user=user)
+		return render_template('userprofile.html', title=user.username, profile_user=user, user=user)
 		
 
 @app.route('/users', methods=['GET'])
@@ -219,6 +221,10 @@ def logout():
 ### Manage Password:
 @app.route('/password', methods=['GET', 'POST'])
 def manage_password():
+	### All possibilities for GET:
+	# No Token - let user enter email to reset.
+	# Valid Token - allow user to enter new password.
+	# Invalid token - render login form and yell at user.
 	if request.method == 'GET':
 		if 'token' not in request.args:
 			return render_template('forgot-password.html', title="Forgot Password")
@@ -227,34 +233,41 @@ def manage_password():
 			if user:
 				return render_template('new-password.html', title="Enter New Password", user=user, message_type="success", message_content="Hey " + user.username + ", enter a new password.", token=request.args['token'])
 			else:
-				return render_template('login.html', title="Log In", error_message="Invalid Token!")
+				return render_template('login.html', title="Log In", message_content="Invalid Token!", message_type="danger")
 
+	### All Possibilities for POST:
+	# forgot-password: User has entered email address for which to retrieve forgotten password.
+	# new-password: User has entered a new password and is looking to have it updated.
+	# Any other POST request: redirect to login.
 	else:
 		if 'forgot-password' in request.form:			
-			print "Made it!"
 			user = Users.query.filter_by(email=request.form['forgot-password']).first()
 			if not user:
 				return render_template('forgot-password.html',title="Forgot Password",message_content = "Sorry, didn't find your email.", message_type="danger")
 			else:
 				user.send_forgot_password_email(request.url_root)
-				return render_template('forgot-password.html', title="Forgot Password", message_content="Check your email for a link via which you can reset your password!", message_type="success")		
+				return render_template('forgot-password.html', title="Forgot Password", message_content="Check your email for a link via which you can reset your password!", message_type="success")
+		### CRITICAL
+		# If a new password arrives, user object is generated using the value of the Submit button which will be the token.
+		# As long as that user exists, new password reset will proceed.		
 		elif 'new-password' in request.form:
 			user = Users.query.filter_by(forgot_token=request.form['new-password-submit']).first()
 			if not user:
-				return redirect('login.html', title="Log In", error_message="Error with token.")
+				return render_template('login.html', title="Log In", message_content="Error with token.", message_type="danger")
 			else:
-				user.password = request.form['new-password']
-				user.forgot_token = None
-				user.forgot_timeout = None
-				db.session.commit()
-				return redirect('/login')		
-		
+				if validate_credentials(request.form['new-password']):
+					user.password = hashlib.md5(request.form['new-password'].encode('utf-8')).hexdigest()
+					user.forgot_token = None
+					user.forgot_timeout = None
+					db.session.commit()
+					return render_template('login.html', title="Log In", message_type="danger", message_content="Password successfully changed! Log In with new password to continue.")
+				else:
+					return render_template('new-password.html',title="New Password",message_type="danger",message_content="Invalid Password!")	
 		else:
 			return redirect('/password')
 
 ###
 # Add headers to both force latest IE rendering engine or Google Frame,
-# and also to cache the rendered page for 10 minutes.
 ###
 
 @app.after_request

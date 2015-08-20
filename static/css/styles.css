@@ -1,4 +1,13 @@
-h1.page_title
+html
+{
+}
+
+body
+{
+	padding-top:70px;
+}
+
+.page_title
 {
 	text-align:center;
 }
