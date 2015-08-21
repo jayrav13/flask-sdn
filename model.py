@@ -146,4 +146,3 @@ class ProjectComments(db.Model):
 
 	def get_time(self):
 		return (time.strftime('%I:%M %p', time.localtime(int(float(self.timestamp)))))
-

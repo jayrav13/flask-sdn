@@ -13,11 +13,13 @@ import HTMLParser
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
 from flask.ext.mail import Mail, Message
+from nocache import nocache
 
 # add app and config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
+app.config['CACHE_TYPE'] = "null"
 
 h = HTMLParser.HTMLParser()
 
@@ -113,7 +115,8 @@ def register():
 				user = Users(un, pw, em)
 				db.session.add(user)
 				db.session.commit()
-		
+				db.session.close()		
+
 				session['logged_in_id'] = user.id
 				return redirect('/')	
 			
@@ -127,6 +130,7 @@ def register():
 ### Projects route. Will list out all projects currently offered.
 
 @app.route('/projects', methods=['GET','POST'])
+@nocache
 @login_required
 def projects():
 	user = return_current_user()
@@ -137,6 +141,7 @@ def projects():
 			if project.title != None and project.description != None:
 				user.projects.append(project)
 				db.session.commit()
+				db.session.close()				
 	
 		return redirect('/projects')
 
@@ -174,7 +179,8 @@ def projects_details():
 				if comment is not None and comment.comment is not None:
 					db.session.add(comment)
 					db.session.commit()
-					
+					db.session.close()
+	
 				return redirect('/projects/details?id=' + request.form['project_id'])				
 			else:
 				return redirect('/projects')		
@@ -183,6 +189,7 @@ def projects_details():
 			if comment and comment.user_id == user.id:
 				db.session.delete(comment)
 				db.session.commit()
+				db.session.close()
 
 			return redirect('/projects/details?id=' + request.form['project_id'])
 		else:
@@ -201,6 +208,7 @@ def projects_delete():
 		if project and project.user_id == user.id:
 			db.session.delete(project)
 			db.session.commit()
+			db.session.close()
 		
 	return redirect('/projects')
 
@@ -213,20 +221,36 @@ def about():
 	
 ### Profile route. Will generate a profile of the current user.
 
-@app.route('/profile', methods=['GET'])
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
 	user = return_current_user()
-	if "id" in request.args:
-		profile_user = Users.query.filter_by(id=request.args['id']).first()		
-	
-		if profile_user:
-			return render_template('userprofile.html', title=profile_user.username, profile_user=profile_user, user=user)
-		else:
-			return redirect("/profile")
-	else:
-		return render_template('userprofile.html', title=user.username, profile_user=user, user=user)
+	if request.method == "GET":
+		if "id" in request.args:
+			profile_user = Users.query.filter_by(id=request.args['id']).first()		
 		
+			if profile_user:
+				return render_template('userprofile.html', title=profile_user.username, profile_user=profile_user, user=user)
+			else:
+				return redirect("/profile")
+		else:
+			return render_template('userprofile.html', title=user.username, profile_user=user, user=user)
+	elif request.method == "POST":
+		if not request.form['email']:
+			return redirect('/profile')
+		else:
+			user.password = hashlib.md5(request.form['password']).hexdigest() if validate_credentials(request.form['password']) else user.password
+			user.email = request.form['email']
+			user.github_link = request.form['github'] if len(request.form['github']) > 0 else None
+			user.facebook_link = request.form['facebook'] if len(request.form['facebook']) > 0 else None
+			user.linkedin_link = request.form['linkedin'] if len(request.form['linkedin']) > 0 else None
+			user.twitter_link = request.form['twitter'] if len(request.form['linkedin']) > 0 else None
+
+			db.session.commit()				
+			db.session.close()
+			
+			return redirect('/profile')
+
 @app.route('/users', methods=['GET'])
 @login_required
 def users():
@@ -280,23 +304,15 @@ def manage_password():
 					user.password = hashlib.md5(request.form['new-password'].encode('utf-8')).hexdigest()
 					user.forgot_token = None
 					user.forgot_timeout = None
+			
 					db.session.commit()
+					db.session.close()
+
 					return render_template('login.html', title="Log In", message_type="danger", message_content="Password successfully changed! Log In with new password to continue.")
 				else:
 					return render_template('new-password.html',title="New Password",message_type="danger",message_content="Invalid Password!")	
 		else:
 			return redirect('/password')
-
-###
-# Add headers to both force latest IE rendering engine or Google Frame,
-###
-
-@app.after_request
-def add_header(response):
-	response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-	response.headers['Cache-Control'] = 'public, max-age=0'
-	return response
-
 ###
 # Error Handling
 ###

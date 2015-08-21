@@ -30,6 +30,10 @@
 
 		<p class="page_title"><i>{{ 'No Comments...yet!' if profile_user.project_comments|length == 0 }}</i></p>	
 
+		{% if profile_user.id == user.id %}
+			{% include 'editprofile.html' %}
+		{% endif %}
+
 	</div>
 </div>
 

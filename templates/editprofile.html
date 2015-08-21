@@ -1,0 +1,45 @@
+<form method="post" action="/profile">
+	<hr />
+	<h4 class="page_title">Edit Profile</h4>
+
+	<div class="input-group">
+		<span class="input-group-addon" id="sizing-addon2"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></span>
+		<input name="email" type="email" class="form-control" placeholder="your-email@gmail.com" aria-describedby="sizing-addon2" value="{{ user.email }}">
+	</div>
+
+	<div class="input-group">
+		<span class="input-group-addon" id="sizing-addon2"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></span>
+		<input name="password" type="password" class="form-control" placeholder="mYpw3rd" aria-describedby="sizing-addon2">
+	</div>
+	
+<br />
+	<div class="input-group">
+		<span class="input-group-addon" id="sizing-addon2"><img src="static/img/github-small.png" alt="fb"/></span>
+		<input name="github" type="text" class="form-control" placeholder="https://www.github.com/{username}" aria-describedby="sizing-addon2" value="{{ user.github_link or ""}}">
+	</div>
+	
+	<div class="input-group">
+		<span class="input-group-addon" id="sizing-addon2"><img src="static/img/facebook-small.png" alt="fb"/></span>
+		<input name="facebook" type="text" class="form-control" placeholder="https://www.facebook.com/{username}" aria-describedby="sizing-addon2" value="{{ user.facebook_link or ""}}">
+	</div>
+	
+	<div class="input-group">
+		<span class="input-group-addon" id="sizing-addon2"><img src="static/img/twitter-small.png" alt="fb"/></span>
+		<input name="twitter" type="text" class="form-control" placeholder="https://www.twitter.com/{username}" aria-describedby="sizing-addon2" value="{{ user.twitter_link or ""}}">
+	</div>
+	
+	<div class="input-group">
+		<span class="input-group-addon" id="sizing-addon2"><img src="static/img/linkedin-small.png" alt="fb"/></span>
+		<input name="linkedin" type="text" class="form-control" placeholder="https://www.linkedin.com/in/{username}" aria-describedby="sizing-addon2" value="{{ user.linkedin_link or ""}}">
+	</div>
+
+	<p class="help-block">Be sure to enter the entire link (including http:// or https://).</p>
+
+	<br />	
+	<div class="object_container">
+		<div class="object_center">
+			<button type="submit" class="btn btn-default">Submit</button>
+		</div>
+	</div>
+
+</form>
