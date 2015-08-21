@@ -7,7 +7,7 @@ body
 	padding:60px 0px 60px 0px;
 }
 
-.comment_timestamp
+.timestamp
 {
 	font-size:10px;
 }
@@ -39,6 +39,18 @@ span.project-actions
 	padding-left:20px;
 	padding-right:20px;
 	text-align:center;
+}
+
+div.comment-content
+{
+	white-space: pre-wrap;       /* CSS 3 */
+	white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+	white-space: -pre-wrap;      /* Opera 4-6 */
+	white-space: -o-pre-wrap;    /* Opera 7 */
+	word-wrap: break-word;       /* Internet Explorer 5.5+ */
+	word-break:keep-all;
+
+	text-align:left;
 }
 
 div.project-details

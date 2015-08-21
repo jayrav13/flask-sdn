@@ -6,7 +6,7 @@ By Jay Ravaliya
 
 # establish all imports
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import jsonify, Flask, render_template, request, redirect, url_for, session, make_response
 from model import Users, Projects, ProjectComments, db 
 import hashlib
 import HTMLParser
@@ -156,20 +156,41 @@ def projects():
 @app.route('/projects/details', methods=['GET','POST'])
 @login_required
 def projects_details():
-	if 'id' in request.args:
-		project = Projects.query.filter_by(id=request.args['id']).first()
-		if project:
-			user = return_current_user()		
-			if request.method == "POST" and request.form['comment-content']:
-				comment = ProjectComments(user, project, request.form['comment-content'])
-				db.session.add(comment)
-				db.session.commit()
-			
-			return render_template('details.html', title=project.title, user=user, project=project)
+	user = return_current_user()
+	
+	if request.method == "GET":
+		if 'id' in request.args:
+			project = Projects.query.filter_by(id=request.args['id']).first()
+			return render_template('details.html', user=user, project=project, title=project.title)
 		else:
-			return redirect('/projects')	
+			return redirect('/projects')
+	
+	elif request.method == "POST":	
+		if 'comment-content' in request.form:
+			project = Projects.query.filter_by(id=request.form['project_id']).first()
+			if project is not None:
+				user = return_current_user()
+				comment = ProjectComments(request.form['comment-content'], user, project)
+				if comment is not None and comment.comment is not None:
+					db.session.add(comment)
+					db.session.commit()
+					
+				return redirect('/projects/details?id=' + request.form['project_id'])				
+			else:
+				return redirect('/projects')		
+		elif 'project_id' in request.form and 'comment_id' in request.form:
+			comment = ProjectComments.query.filter_by(id=request.form['comment_id']).filter_by(project_id=request.form['project_id']).first()
+			if comment and comment.user_id == user.id:
+				db.session.delete(comment)
+				db.session.commit()
+
+			return redirect('/projects/details?id=' + request.form['project_id'])
+		else:
+			return redirect('/projects')
+	
 	else:
-		return redirect('/projects')
+		return redirect('/')	
+
 
 @app.route('/projects/delete', methods=['GET'])
 @login_required
@@ -202,11 +223,10 @@ def profile():
 		if profile_user:
 			return render_template('userprofile.html', title=profile_user.username, profile_user=profile_user, user=user)
 		else:
-			return redirect("/")
+			return redirect("/profile")
 	else:
 		return render_template('userprofile.html', title=user.username, profile_user=user, user=user)
 		
-
 @app.route('/users', methods=['GET'])
 @login_required
 def users():

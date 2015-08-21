@@ -1,5 +1,21 @@
 {% include 'standard/header.html' %}
 
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#comment-form").hide();
+
+		$("#toggle-comment-form").click(function() {
+			if($("#comment-form").is(":visible")) {
+				$("#comment-form").hide(250);
+				$("#toggle-comment-form").find("span").attr("class", "glyphicon glyphicon-plus-sign");
+			} else {
+				$("#comment-form").show(250);
+				$("#toggle-comment-form").find("span").attr("class", "glyphicon glyphicon-minus-sign");
+			}
+		})
+	})
+
+</script>
 
 <div class="container-fluid">
 	<div class="col-md-8 col-md-offset-2">
@@ -11,17 +27,52 @@
 		</div>
 		<hr />
 		<h4 class="page_title">Comments</h4>
+	
+		<div class="page_title">
+			<button id="toggle-comment-form" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span></button>
+		</div>
+	</div>
+</div>
 
+<div class="container-fluid">
+	<div class="col-md-8 col-md-offset-2">
+		<form id="comment-form" method="post" action="/projects/details">
+			<div class="form-group">
+				<label for="comment-content">Leave a Comment</label>
+				<textarea rows="3" type="text" class="form-control" id="comment-content" name="comment-content" placeholder="I'd love to join in - cool project!"></textarea>
+			</div>
+			<div class="form-group">
+				<p class="help-block">Note - HTML accepted in the input. Any input with script tags will be ignored.</p>
+				<input hidden name="project_id" value="{{ project.id }}" />
+			</div>
+			<div class="object_container">
+				<div class="object_center">
+					<button type="submit" class="btn btn-default">Submit</button>
+				</div>
+			</div>
+		</form>
+		<hr />
+	</div>
+</div>
 
-		{% for comment in project.project_comments|sort(attribute='timestamp') %}
+<div class="container-fluid">
+	<div class="col-md-8 col-md-offset-2">
+		{% for comment in project.project_comments|sort(attribute='timestamp', reverse=True) %}
 		<div id="{{ comment.id }}" class="panel panel-default">
 			<div class="panel-body">
-				{{ comment.comment }}
+				<div class="comment-content">{{ comment.comment|safe }}</div>
 			</div>
 			<div class="panel-heading">
 				<span class="glyphicon glyphicon-user" aria-hidden="true"></span>    <a href="/profile?id={{ comment.user.id }}">{{ comment.user.username }}</a> {% if comment.user.id == project.users.id %} <span class="label label-success">OP</span> {% endif %}
 				<br />
-				<span class="comment_timestamp">{{ comment.get_date() + ", " + comment.get_time() }}</span>
+				<span class="timestamp">{{ comment.get_date() + ", " + comment.get_time() }}</span>
+				{% if comment.user.id == user.id %}
+				<form method="post" action="/projects/details">
+					<input hidden name="project_id" value="{{ comment.project_id }}" />
+					<input hidden name="comment_id" value="{{ comment.id }}" />
+					<button name="delete-comment" type="submit" class="btn btn-danger">Delete</button>
+				</form>
+				{% endif %}
 			</div>
 		</div>
 		{% endfor %}

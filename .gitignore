@@ -36,3 +36,4 @@ pip-log.txt
 # JR
 static/.webassets-cache
 secret.py
+static/img/simple-icons/

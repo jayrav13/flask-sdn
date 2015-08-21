@@ -19,7 +19,7 @@
 </script>
 
 <div class="container-fluid">
-	<div class="col-md-4 col-md-offset-4">
+	<div class="col-md-8 col-md-offset-2">
 		<form id="projects-form" method="POST" action="/projects">
 			<div class="form-group">
 				<label for="title">Project Title</label>
@@ -27,7 +27,10 @@
 			</div>
 			<div class="form-group">
 				<label for="description">Project Description</label>
-				<textarea name="description" class="form-control" id = "description" rows="3" placeholder="Wouldn't it be cool to build a..." required></textarea>	
+				<textarea name="description" class="form-control" id = "description" rows="5" placeholder="Wouldn't it be cool to build a..." required></textarea>	
+			</div>
+			<div class="form-group">
+				<p class="help-block">Note - HTML accepted in the input. Any input with script tags will be ignored.</p>
 			</div>
 			<div class="object_container">
 				<div class="object_center">

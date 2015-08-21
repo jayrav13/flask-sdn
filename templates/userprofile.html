@@ -3,21 +3,33 @@
 <div class="container-fluid">
 	<div class="col-md-4 col-md-offset-4">
 		<h1 class="page_title">{{ profile_user.username }}</h1>
+		<div class="page_title">
+			<a href="{{ profile_user.github_link if profile_user.github_link != None else '#' }}"><img {{ 'style=opacity:0.5' if profile_user.github_link == None }} src="/static/img/github.png" alt="GitHub" /></a>		
+			<a href="{{ profile_user.facebook_link if profile_user.facebook_link != None else '#' }}"><img {{ 'style=opacity:0.5' if profile_user.facebook_link == None }} src="/static/img/facebook.png" alt="Facebook" /></a>
+			<a href="{{ profile_user.twitter_link if profile_user.twitter_link != None else '#' }}"><img {{ 'style=opacity:0.5' if profile_user.twitter_link == None }} src="/static/img/twitter.png" alt="Twitter" /></a>
+			<a href="{{ profile_user.linkedin_link if profile_user.linkedin_link != None else '#' }}"><img {{ 'style=opacity:0.5' if profile_user.linkedin_link == None }} src="/static/img/linkedin.png" alt="LinkedIn" /></a>		
+		</div>
 		<hr />
 
 		<h4 class="page_title">Projects</h4>
 		{% for project in profile_user.projects %}
-		<a href="/projects/details?id={{project.id}}">{{ project.title }}</a><br />created at {{ project.get_date() }} at {{ project.get_time() }}
-		<br /><br />
+		<div class="well well-sm">	
+			<a href="/projects/details?id={{project.id}}">{{ project.title }}</a><br />created at {{ project.get_date() }} at {{ project.get_time() }}
+		</div>
 		{% endfor %}
+		
+		<p class="page_title"><i>{{ 'No Projects...yet!' if profile_user.projects|length == 0 }}</i></p>
 
 		<h4 class="page_title">Comments</h4>
 		{% for comment in profile_user.project_comments %}
-		<a href="/projects/details?id={{ comment.project.id }}#{{ comment.id }}">"{{ comment.comment }}"</a><br />
-		<i><a href="/projects/details?id={{comment.project.id}}">{{ comment.project.title }}</a></i>
-		<br />
-		<br />
+		<div class="well well-sm">	
+			<a href="/projects/details?id={{ comment.project.id }}#{{ comment.id }}">"{{ comment.comment }}"</a><br />
+			<i><a href="/projects/details?id={{comment.project.id}}">{{ comment.project.title }}</a></i>
+		</div>
 		{% endfor %}
+
+		<p class="page_title"><i>{{ 'No Comments...yet!' if profile_user.project_comments|length == 0 }}</i></p>	
+
 	</div>
 </div>
 

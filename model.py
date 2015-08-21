@@ -40,16 +40,24 @@ class Users(db.Model):
 	email = db.Column(db.String)
 	forgot_token = db.Column(db.String)
 	forgot_timeout = db.Column(db.String)
+	facebook_link = db.Column(db.String)
+	github_link = db.Column(db.String)
+	linkedin_link = db.Column(db.String)
+	twitter_link = db.Column(db.String)
 
 	# Backrefs
 	projects = relationship("Projects", backref="users", single_parent=True, cascade="all, delete-orphan", primaryjoin=("Users.id==Projects.user_id"))
 	project_comments = association_proxy('project_comments','projects')
 
 	# Initialize new user by setting values and adding them right away
-	def __init__(self, username, password, email):
+	def __init__(self, username, password, email, facebook=None, github=None, linkedin=None, twitter=None):
 		self.username = username
 		self.password = password
 		self.email = email
+		self.facebook_link = facebook
+		self.github_link = github
+		self.linkedin_link = linkedin
+		self.twitter_link = twitter
 
 	def set_forgot_token(self):
 		self.forgot_timeout = time.time() + 86400
@@ -115,14 +123,22 @@ class ProjectComments(db.Model):
 	comment = db.Column(db.String)
 	timestamp = db.Column(db.String)
 
-	user = relationship("Users", backref="project_comments", single_parent=True, cascade="all, delete-orphan", primaryjoin=("Users.id==ProjectComments.user_id"))
+	user = relationship("Users", backref="project_comments", single_parent=True, primaryjoin=("Users.id==ProjectComments.user_id"))
 	project = relationship("Projects")	
 
-	def __init__(self, user, project, comment):
-		self.comment = comment
-		self.user = user
-		self.project = project
-		self.timestamp = str(time.time()) 
+	def __init__(self, comment, user, project):
+		updated_comment = comment.replace("<script","<br />").replace("text/javascript","<br />").replace("</script>","<br />")
+	
+		if len(comment) == 0 or updated_comment != comment:
+			self.comment = None
+			self.user = None
+			self.project = None
+			self.timestamp = None
+		else:
+			self.comment = comment
+			self.user = user
+			self.project = project
+			self.timestamp = str(time.time()) 
 
 	
 	def get_date(self):
