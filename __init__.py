@@ -6,20 +6,18 @@ By Jay Ravaliya
 
 # establish all imports
 import os
-from flask import jsonify, Flask, render_template, request, redirect, url_for, session, make_response
+from flask import request_finished, jsonify, Flask, render_template, request, redirect, url_for, session, make_response
 from model import Users, Projects, ProjectComments, db 
 import hashlib
 import HTMLParser
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
 from flask.ext.mail import Mail, Message
-from nocache import nocache
 
 # add app and config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
-app.config['CACHE_TYPE'] = "null"
 
 h = HTMLParser.HTMLParser()
 
@@ -32,6 +30,7 @@ h = HTMLParser.HTMLParser()
 def login_required(f):
 	@wraps(f)
 	def decorated_function(*args, **kwargs):
+		db.session.commit()
 		if 'logged_in_id' not in session.keys():
 			return redirect('/login')
 
@@ -41,6 +40,7 @@ def login_required(f):
 ### return_current_user
 ### Returns current user as a Users object if the user is logged in.
 def return_current_user():
+	db.session.commit()
 	if 'logged_in_id' not in session.keys():
 		return False
 	else:
@@ -115,7 +115,6 @@ def register():
 				user = Users(un, pw, em)
 				db.session.add(user)
 				db.session.commit()
-				db.session.close()		
 
 				session['logged_in_id'] = user.id
 				return redirect('/')	
@@ -130,7 +129,6 @@ def register():
 ### Projects route. Will list out all projects currently offered.
 
 @app.route('/projects', methods=['GET','POST'])
-@nocache
 @login_required
 def projects():
 	user = return_current_user()
@@ -141,7 +139,6 @@ def projects():
 			if project.title != None and project.description != None:
 				user.projects.append(project)
 				db.session.commit()
-				db.session.close()				
 	
 		return redirect('/projects')
 
@@ -179,7 +176,6 @@ def projects_details():
 				if comment is not None and comment.comment is not None:
 					db.session.add(comment)
 					db.session.commit()
-					db.session.close()
 	
 				return redirect('/projects/details?id=' + request.form['project_id'])				
 			else:
@@ -189,7 +185,6 @@ def projects_details():
 			if comment and comment.user_id == user.id:
 				db.session.delete(comment)
 				db.session.commit()
-				db.session.close()
 
 			return redirect('/projects/details?id=' + request.form['project_id'])
 		else:
@@ -208,7 +203,6 @@ def projects_delete():
 		if project and project.user_id == user.id:
 			db.session.delete(project)
 			db.session.commit()
-			db.session.close()
 		
 	return redirect('/projects')
 
@@ -247,14 +241,8 @@ def profile():
 			user.twitter_link = request.form['twitter'] if len(request.form['linkedin']) > 0 else None
 
 			db.session.commit()				
-			db.session.close()
 			
 			return redirect('/profile')
-
-@app.route('/users', methods=['GET'])
-@login_required
-def users():
-	return "Users"
 
 ### Logout route. Will logout the user. More technically, will remove ID from session/cookies.
 
@@ -306,7 +294,6 @@ def manage_password():
 					user.forgot_timeout = None
 			
 					db.session.commit()
-					db.session.close()
 
 					return render_template('login.html', title="Log In", message_type="danger", message_content="Password successfully changed! Log In with new password to continue.")
 				else:

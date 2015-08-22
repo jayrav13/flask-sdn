@@ -11,6 +11,7 @@ body
 {
 	font-size:10px;
 }
+
 .page_title
 {
 	text-align:center;
@@ -19,6 +20,11 @@ body
 div.object_container
 {
 	margin:auto;
+	text-align:center;
+}
+
+table.about-table td, th 
+{
 	text-align:center;
 }
 
