@@ -23,7 +23,7 @@
 		<p class="page_title">Created by <a href="/profile?id={{ project.users.id }}">{{ project.users.username }}</a> at {{ project.get_date() }} at {{ project.get_time() }}</p>
 		<hr />	
 		<div class="well well-lg">
-			<span class="justify_text">{{ project.description|safe }}</span>
+			<div class="project-details">{{ project.description|safe }}</div>
 		</div>
 		<hr />
 		<h4 class="page_title">Comments</h4>

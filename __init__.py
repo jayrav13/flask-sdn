@@ -13,6 +13,7 @@ import HTMLParser
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
 from flask.ext.mail import Mail, Message
+from sqlalchemy import or_
 
 # add app and config
 app = Flask(__name__)
@@ -112,13 +113,15 @@ def register():
 	
 		if not Users.query.filter_by(email=em).filter_by(username=un).first():
 			if validate_credentials(un) == True and validate_credentials(request.form['password']) == True: 
-				user = Users(un, pw, em)
-				db.session.add(user)
-				db.session.commit()
+				if request.form['password'] == request.form['confirm-password']:	
+					user = Users(un, pw, em)
+					db.session.add(user)
+					db.session.commit()
 
-				session['logged_in_id'] = user.id
-				return redirect('/')	
-			
+					session['logged_in_id'] = user.id
+					return redirect('/')	
+				else:
+					return render_template('register.html', title='Register', error_message="Password's don't match! Try again!")
 			else:
 				return render_template('register.html', title="Register", error_message="Username and Password must be alphanumeric from 8-16 characters.")
 		else:
@@ -146,7 +149,7 @@ def projects():
 		if 'clear-page' in request.args:
 			return redirect('/projects')
 		elif 'query' in request.args:
-			projects = Projects.query.filter(Projects.title.like('%'+request.args['query']+'%')).order_by(Projects.timestamp.desc()).all()
+			projects = Projects.query.filter(or_(Projects.title.like('%'+request.args['query']+'%'), Projects.description.like('%'+request.args['query']+'%'))).order_by(Projects.timestamp.desc()).all()
 			
 		else:
 			projects = Projects.query.order_by(Projects.timestamp.desc()).all()			

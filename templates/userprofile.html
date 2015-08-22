@@ -23,8 +23,8 @@
 		<h4 class="page_title">Comments</h4>
 		{% for comment in profile_user.project_comments %}
 		<div class="well well-sm">	
-			<a href="/projects/details?id={{ comment.project.id }}#{{ comment.id }}">"{{ comment.comment }}"</a><br />
-			<i><a href="/projects/details?id={{comment.project.id}}">{{ comment.project.title }}</a></i>
+			"{{ comment.comment[:80]|safe }}..."<br />
+			<i><a href="/projects/details?id={{ comment.project.id }}#{{ comment.id }}">{{ comment.project.title }}</a></i>
 		</div>
 		{% endfor %}
 
