@@ -7,7 +7,7 @@ By Jay Ravaliya
 # establish all imports
 import os
 from flask import request_finished, jsonify, Flask, render_template, request, redirect, url_for, session, make_response
-from model import Users, Projects, ProjectComments, db 
+from model import Users, Projects, ProjectComments, Messages, db 
 import hashlib
 import HTMLParser
 from functools import wraps
@@ -34,7 +34,7 @@ def login_required(f):
 		db.session.commit()
 		if 'logged_in_id' not in session.keys():
 			return redirect('/login')
-
+		
 		return f(*args, **kwargs)
 	return decorated_function
 
@@ -135,6 +135,7 @@ def register():
 @login_required
 def projects():
 	user = return_current_user()
+	messages = Messages.query.filter_by(to_id=user.id).all()
 
 	if request.method == 'POST':
 		if request.form['title'] and request.form['description']:
@@ -154,7 +155,7 @@ def projects():
 		else:
 			projects = Projects.query.order_by(Projects.timestamp.desc()).all()			
 
-		return render_template('projects.html', title="Projects", user=user, projects=projects)
+		return render_template('projects.html', title="Projects", user=user, projects=projects, messages=messages)
 
 ### Projects Details route. Will load details about a project, including comments.
 

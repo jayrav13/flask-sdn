@@ -45,6 +45,9 @@ class Users(db.Model):
 	linkedin_link = db.Column(db.String)
 	twitter_link = db.Column(db.String)
 
+	messages_sent = relationship("Messages", primaryjoin=("Users.id==Messages.from_id"))
+	messages_received = relationship("Messages", primaryjoin=("Users.id==Messages.to_id"))
+
 	# Backrefs
 	projects = relationship("Projects", backref="users", single_parent=True, cascade="all, delete-orphan", primaryjoin=("Users.id==Projects.user_id"))
 	project_comments = association_proxy('project_comments','projects')
@@ -146,3 +149,24 @@ class ProjectComments(db.Model):
 
 	def get_time(self):
 		return (time.strftime('%I:%M %p', time.localtime(int(float(self.timestamp)))))
+
+###
+# Messages Table
+###
+
+class Messages(db.Model):
+
+	___tablename__ = 'messages'
+
+	# Columns
+	id = db.Column(db.Integer, primary_key=True)
+	from_id = db.Column(db.Integer, ForeignKey('users.id'))
+	to_id = db.Column(db.Integer, ForeignKey('users.id'))
+	message = db.Column(db.String)
+
+	def __init__(self, from_user, to_user, message):
+		self.from_user = from_user
+		self.to_user = to_user
+		self.message = message
+
+

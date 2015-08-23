@@ -42,6 +42,7 @@
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						{% if user is defined and user != False %}						
+						<li role="presentation"><a href="#">Messages <span class="badge">{{ user.messages|length }}</span></a></li>
 						<li class="{{ "active" if profile_user is defined }}"><a href="/profile">Edit Profile</a></li>
 						<li><a href="/logout">Log Out</a></li>	
 						{% else %}
