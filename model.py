@@ -1,6 +1,6 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, ForeignKey, String, Column
+from sqlalchemy import Integer, ForeignKey, String, Column, or_
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.associationproxy import association_proxy
 from secret import DB_KEY, GMAIL_USERNAME, GMAIL_PASSWORD
@@ -44,9 +44,7 @@ class Users(db.Model):
 	github_link = db.Column(db.String)
 	linkedin_link = db.Column(db.String)
 	twitter_link = db.Column(db.String)
-
-	messages_sent = relationship("Messages", primaryjoin=("Users.id==Messages.from_id"))
-	messages_received = relationship("Messages", primaryjoin=("Users.id==Messages.to_id"))
+	public_profile = db.Column(db.Integer)
 
 	# Backrefs
 	projects = relationship("Projects", backref="users", single_parent=True, cascade="all, delete-orphan", primaryjoin=("Users.id==Projects.user_id"))
@@ -61,6 +59,7 @@ class Users(db.Model):
 		self.github_link = github
 		self.linkedin_link = linkedin
 		self.twitter_link = twitter
+		self.public_profile = 0
 
 	def set_forgot_token(self):
 		self.forgot_timeout = time.time() + 86400
@@ -163,10 +162,17 @@ class Messages(db.Model):
 	from_id = db.Column(db.Integer, ForeignKey('users.id'))
 	to_id = db.Column(db.Integer, ForeignKey('users.id'))
 	message = db.Column(db.String)
+	unread = db.Column(db.Integer)
+	timestamp = db.Column(db.String)
+
+	from_user = relationship("Users", primaryjoin=("Users.id==Messages.from_id"))
+	to_user = relationship("Users", primaryjoin=("Users.id==Messages.to_id"))
 
 	def __init__(self, from_user, to_user, message):
 		self.from_user = from_user
 		self.to_user = to_user
 		self.message = message
+		self.unread = 1
+		self.timestamp = str(time.time())
 
 

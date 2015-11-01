@@ -17,6 +17,11 @@ body
 	text-align:center;
 }
 
+.float-right
+{
+	float:right;
+}
+
 div.object_container
 {
 	margin:auto;

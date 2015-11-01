@@ -38,11 +38,11 @@
 					<ul class="nav navbar-nav">
 						<li class="{{ "active" if title == "About" }}"><a href="/about">About</a></li>
 						<li class="{{ "active" if title == "Projects"  }}"><a href="/projects">Projects</a></li>
-						<!--<li class="{{ "active" if title == "Users" }}"><a href="/users">Users</a></li>-->					
+						<li class="{{ "active" if title == "Users" }}"><a href="/users">Users</a></li>					
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						{% if user is defined and user != False %}						
-						<li role="presentation"><a href="#">Messages <span class="badge">{{ user.messages|length }}</span></a></li>
+						<li role="presentation"><a href="#">Messages <span class="badge">{{ user.messages_received|unread_messages(1)|length }}</span></a></li>
 						<li class="{{ "active" if profile_user is defined }}"><a href="/profile">Edit Profile</a></li>
 						<li><a href="/logout">Log Out</a></li>	
 						{% else %}

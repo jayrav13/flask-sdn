@@ -13,12 +13,15 @@ import HTMLParser
 from functools import wraps
 from flask.ext.assets import Environment, Bundle
 from flask.ext.mail import Mail, Message
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 
 # add app and config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Testing-Secret-Key" 
 assets = Environment(app)
+
+app.config['SQLALCHEMY_POOL_RECYCLE'] = 499
+app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
 
 h = HTMLParser.HTMLParser()
 
@@ -244,6 +247,11 @@ def profile():
 			user.linkedin_link = request.form['linkedin'] if len(request.form['linkedin']) > 0 else None
 			user.twitter_link = request.form['twitter'] if len(request.form['linkedin']) > 0 else None
 
+			if 'public_profile_checkbox' in request.form:
+				user.public_profile = 1
+			else:
+				user.public_profile = 0
+
 			db.session.commit()				
 			
 			return redirect('/profile')
@@ -304,6 +312,32 @@ def manage_password():
 					return render_template('new-password.html',title="New Password",message_type="danger",message_content="Invalid Password!")	
 		else:
 			return redirect('/password')
+
+@app.route('/users', methods=['GET'])
+@login_required
+def users():
+	user = return_current_user()
+	users = Users.query.filter_by(public_profile=1).all()
+	return render_template('users.html', user=user, users=users, title="Users")
+
+
+@app.route('/messages', methods=['GET','POST'])
+@login_required
+def messages():
+	user = return_current_user()
+	messages = Messages.query.filter(or_(Messages.from_id==user.id, Messages.to_id==user.id)).order_by(desc(Messages.timestamp)).all()
+	return render_template('messages.html', title="Messages", user=user, messages=messages)
+
+@app.template_filter('unread_messages')
+def unread_messages(value, filt=0):
+	output = []
+	for messages in value:
+		if messages.unread == filt:
+			output.append(messages)
+
+	return output
+
+
 ###
 # Error Handling
 ###

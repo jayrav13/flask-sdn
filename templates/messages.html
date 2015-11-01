@@ -1,0 +1,18 @@
+{% include 'standard/header.html' %}
+
+<div class="container-fluid">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="well well-lg clearfix">
+			{% for message in messages %}
+				<div class="panel panel-default">
+					<div class="panel-heading">{{ message.from_user.username }}</div>
+					<div class="panel-body">
+						{{ message.message }}
+					</div>
+				</div>
+			{% endfor %}
+		</div>		
+	</div>
+</div>
+
+{% include 'standard/footer.html' %}
